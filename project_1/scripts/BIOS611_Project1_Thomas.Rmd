@@ -1,0 +1,87 @@
+---
+title: "Project 1"
+author: "Alvin Thomas"
+date: "9/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The [Urban Ministries of Durham](http://www.umdurham.org/) (UMD) fights poverty and homeless by offering food, shelter, and a future to neighbors in need. Their mission is accomplished through three primary programs: a [community shelter](http://www.umdurham.org/what-we-do/shelter.html) to house homeless neighbors, a [community cafe](http://www.umdurham.org/what-we-do/cafe.html) that provides hot and cold meals three times a day, and a [food pantry and clothing closet](http://www.umdurham.org/what-we-do/food-pantry.html).
+
+During the 2017-2018 [fiscal year](http://umdurham.org/assets/files/UMD_2018AnnualReport_Online.pdf), UMD provided 54,378 nights of shelter to homeless neighbors (792 unique individuals), served 248,028 meals through the community cafe, and provided clothing and groceries to over 500 households per month. Importantly, they ended homelessness for 243 individuals.
+
+In collaboration with [Biostatistics 611](https://biodatascience.github.io/datasci611/), a course titled "Introduction to Data Science" at the University of North Carolina at Chapel Hill, UMD released a dataset of services provided. This project also uses data from Durham's Open Data [portal](https://live-durhamnc.opendata.arcgis.com/pages/community-indicators).
+
+The purpose of this project is address how UMD's core services have changed over time in the context of secular changes in the City of Durham. We will focus on the food pantry and clothing closet services.
+
+Specifically, our aims are to:
+1. Quantify changes in the distribution of food, bus tickets, school kids, hygiene kits, and financial support over time (2010-2018).
+2. Plot changes in UMD's services against changes in Durham Community Indicators.
+
+# Data Processing
+
+```{r intro, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+library("tidyverse")
+library("lubridate")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1")
+
+proj1 <- read_tsv("../../datasci611/data/project1_2019/UMD_Services_Provided_20190719.tsv")
+proj1_meta <- read_tsv("../../datasci611/data/project1_2019/UMD_Services_Provided_metadata_20190719.tsv")
+
+```
+
+Here is a brief peek of the data provided by UMD.
+
+```{r summary, echo=TRUE}
+head(proj1)
+```
+
+There are several variables that do not provide data that can be used in this analysis. The variables `field1`, `field2`, and `field3` are missing for almost everyone in the dataset. The variable `clientfilemerge` is not necessary for our analysis.
+
+```{r remove_vars, echo=TRUE, results='hide'}
+proj1 <- proj1 %>%
+  select(-starts_with("field")) %>%
+  select(-matches("clientfilemerge"))
+```
+
+The date variables was read in as a character vectors. We can use `lubridate` to make it date-readable. We can also plot our new variable.
+
+```{r date, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+proj1 <- proj1 %>%
+  mutate(date_new=mdy(proj1$Date))
+
+ggplot(data=proj1, aes(x=date_new)) +
+  geom_histogram() +
+  theme_minimal() +
+  xlab("Date of Service") +
+  ylab("Count") +
+  ggtitle("Full Range of Available Dates")
+```
+
+There is probably an error with one of the dates - the entire dataset should be in the more recent era.
+
+We will restrict analyses to the period starting in January 1, 2010 and ending December 31, 2017. This lines up with the data we have from the City of Durham Community Indicators.
+
+```{r date_restrict, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+proj1 <- proj1 %>%
+  filter(between(date_new, as.Date("2010-01-01"), as.Date("2017-12-31"))) %>%
+  arrange(date_new)
+
+ggplot(data=proj1, aes(x=date_new)) +
+  geom_histogram() +
+  theme_minimal() +
+  xlab("Date of Service") +
+  ylab("Count") +
+  ggtitle("Restricted Range of Available Dates (2010-2017)")
+```
+
+
+
+# Results
+
+# Conclusion
