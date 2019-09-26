@@ -20,7 +20,7 @@ In collaboration with [Biostatistics 611](https://biodatascience.github.io/datas
 The purpose of this project is address how UMD's core services have changed over time in the context of secular changes in the City of Durham. We will focus on the food pantry and clothing closet services.
 
 Specifically, our aims are to:
-1. Quantify changes in the distribution of food, bus tickets, school kids, hygiene kits, and financial support over time (2010-2018).
+1. Quantify changes in the distribution of food, clothing, school kits, hygiene kits, and diapers. (2010-2017).
 2. Plot changes in UMD's services against changes in Durham Community Indicators.
 
 # Data Processing
@@ -41,12 +41,15 @@ Here is a brief peek of the data provided by UMD.
 head(proj1)
 ```
 
-There are several variables that do not provide data that can be used in this analysis. The variables `field1`, `field2`, and `field3` are missing for almost everyone in the dataset. The variable `clientfilemerge` is not necessary for our analysis.
+There are several variables that do not provide data that can be used in this analysis. The variables `field1`, `field2`, and `field3` are missing for almost everyone in the dataset. The variable `clientfilemerge` is not necessary for our analysis as is `Bus Tickets (Number of)`, `Notes of Service`, `Food Provided for`, `Referrals`, `Financial Support`, `Type of Bill Paid`, and `Payer of Support`.
 
 ```{r remove_vars, echo=TRUE, results='hide'}
 proj1 <- proj1 %>%
   select(-starts_with("field")) %>%
-  select(-matches("clientfilemerge"))
+  select(-matches("clientfilemerge")) %>%
+  select(-one_of("Bus Tickets (Number of)","Notes of Service",
+                 "Food Provided for", "Referrals", "Financial Support",
+                 "Type of Bill Paid", "Payer of Support"))
 ```
 
 The date variables was read in as a character vectors. We can use `lubridate` to make it date-readable. We can also plot our new variable.
@@ -80,8 +83,131 @@ ggplot(data=proj1, aes(x=date_new)) +
   ggtitle("Restricted Range of Available Dates (2010-2017)")
 ```
 
+We are specifically interested in food (in lbs), items of clothing, school kits, hygiene kits, and diapers.
 
+```{r sum_dates, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+proj1_date <- proj1 %>%
+  mutate(year = year(date_new), month = month(date_new)) %>%
+  group_by(year, month) %>%
+  replace_na(list(`Food Pounds` = 0, 
+             `Clothing Items` = 0, 
+             `School Kits` = 0,
+             `Hygiene Kits` = 0,
+             Diapers = 0)) %>%
+  mutate(food_cumsum = cumsum(`Food Pounds`),
+        cloth_cumsum = cumsum(`Clothing Items`),
+        school_cumsum = cumsum(`School Kits`),
+        hygiene_cumsum = cumsum(`Hygiene Kits`),
+        diaper_cumsum = cumsum(Diapers)) %>%
+  summarise(food_total=max(food_cumsum, na.rm = TRUE),
+            cloth_total=max(cloth_cumsum, na.rm = TRUE),
+            school_total=max(school_cumsum, na.rm = TRUE),
+            hygiene_total=max(hygiene_cumsum, na.rm = TRUE),
+            diaper_total=max(diaper_cumsum, na.rm = TRUE))
+```
+
+Let's peek. These are the types of graphs we would like to make.
+
+```{r plot_lbs_test, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=food_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Food Distributed (lbs)")
+```
 
 # Results
 
+We were interested in the change in services at UMD over time. In order to visualize these trends, I created heatmaps (using `geom_raster`). 
+
+## Food Distribution
+
+The amount of food delivered has increased over the years. There does not seem to be a clear visual signal of seasonal change.
+
+```{r plot_food, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=food_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Food Distributed (lbs)")
+```
+
+## Clothing Distribution
+
+The amount of clothing delivered has changed over time. The peak year was 2014.
+
+```{r plot_cloth, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=cloth_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Clothing Distributed")
+```
+
+## School Kit Distribution
+
+The quality of data on school kit distribution may be poor.
+
+```{r plot_school, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=school_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of School Kits Distributed")
+```
+
+## Hygiene Kit Distribution
+
+We know that hygiene kits are still being distributed, but the data capture on these events are poor. It appears that there have been almost no hygiene kits distributed since 2014, which we know to be false.
+
+```{r plot_hygiene, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=hygiene_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Hygiene Kits Distributed")
+```
+
+## Diaper Distribution
+
+The quality of data on diaper distribution may be poor. There may be higher diaper distribution in the summer.
+
+```{r plot_dipaer, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=diaper_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Diapers Distributed")
+```
+
 # Conclusion
+
+The best data on changes over time in this UMD provided dataset are for food distribution. Food distribution has increased over time and does not seem to have strong seasonal variation. 
