@@ -1,7 +1,7 @@
 # Projects 1: Data Analysis with the Tidyverse
-### Author: Alvin Thomas, MSPH
-### Class: UNC BIOS 611, Fall 2019
-### github: @alvinthomas
+Author: Alvin Thomas, MSPH
+Class: UNC BIOS 611, Fall 2019
+github: @alvinthomas
 
 # Background: Urban Ministries of Durham
 ![alt text](http://www.umdurham.org/assets/images/logo-new1.png "Urban Ministries Logo")
@@ -12,8 +12,8 @@ The three primary arms of UMD are the community shelter, community cafe, and foo
 
 # Research Question
 1) How have UMD's core services changed over time?
-* This will focus on the distribution of food, bus tickets, school kits, hygiene kits, and financial support.
-* This will also inform future use of these variables.
+* We focus on the distribution of food, bus tickets, school kits, hygiene kits, and financial support.
+* This aim will also inform future use of these variables.
 2) How do these trends fit into the context of City of Durham Community Indicators?
 * The focus here will be median gross monthly rent, median housing value, and unemployment rates.
 
@@ -55,9 +55,9 @@ Referrals | Referrals to outside organizations | No
 Financial Support | Amount of money | No
 Type of Bill Paid | Type of bill paid | No
 Payer of Support | Payer of bill/financial support | No
-Field1 | Empty field | No
-Field2 | Empty field | No
-Field3 | Empty field | No
+Field1 | Empty Variable | No
+Field2 | Empty Variable | No
+Field3 | Empty Variable | No
 
 ## Filename: UMD_Services_Provided_metadata_20190719.tsv
 
@@ -66,4 +66,4 @@ The purpose of this dataset is to provide the analyst with descriptions of the p
 Variable | Description
 ---|---
 Var1 | Name of Variable
-Var2 | Description of variable, NA is no information available
+Var2 | Description of variable, NA indicates no information available
