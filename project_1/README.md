@@ -14,14 +14,11 @@ The three primary arms of UMD are the community shelter, community cafe, and foo
 1) How have UMD's core services changed over time?
 * We focus on the distribution of food, bus tickets, school kits, hygiene kits, and financial support.
 * This aim will also inform future use of these variables.
-2) How do these trends fit into the context of City of Durham Community Indicators?
-* The focus here will be median gross monthly rent, median housing value, and unemployment rates.
 
 # Approach
 
-For the first part, we will use data provided by UMD and plot trends over calendar time. Given the need for UMD to present data for annual reports, we will also provide numbers using a fiscal calendar.
+We will use data provided by UMD and plot trends over calendar time. Given the need for UMD to present data for annual reports, we will also provide numbers using a fiscal calendar.
 
-For the second part, we will use data from Durham's Open Data [portal](https://live-durhamnc.opendata.arcgis.com/pages/community-indicators). Data from the Community Indicators trends will be compared to trends in UMD services.
 
 # Organization
 
