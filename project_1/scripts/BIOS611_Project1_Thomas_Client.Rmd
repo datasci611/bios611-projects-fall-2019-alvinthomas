@@ -1,0 +1,254 @@
+---
+title: "Project 1 Client Report"
+author: "Alvin Thomas"
+date: "10/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+# Introduction
+
+![](http://www.umdurham.org/assets/images/logo-new1.png)
+
+The [Urban Ministries of Durham](http://www.umdurham.org/) (UMD) fights poverty and homeless by offering food, shelter, and a future to neighbors in need. Their mission is accomplished through three primary programs: a [community shelter](http://www.umdurham.org/what-we-do/shelter.html) to house homeless neighbors, a [community cafe](http://www.umdurham.org/what-we-do/cafe.html) that provides hot and cold meals three times a day, and a [food pantry and clothing closet](http://www.umdurham.org/what-we-do/food-pantry.html).
+
+During the 2017-2018 [fiscal year](http://umdurham.org/assets/files/UMD_2018AnnualReport_Online.pdf), UMD provided 54,378 nights of shelter to homeless neighbors (792 unique individuals), served 248,028 meals through the community cafe, and provided clothing and groceries to over 500 households per month. Importantly, they ended homelessness for 243 individuals.
+
+In collaboration with [Biostatistics 611](https://biodatascience.github.io/datasci611/), a course titled "Introduction to Data Science" at the University of North Carolina at Chapel Hill, UMD released a dataset of services provided. 
+
+# Study Aim
+
+The purpose of this project is address how UMD's core services have changed over time. We will focus on the food pantry and clothing closet services.
+
+Specifically, our aim is to quantify changes in the distribution of food, clothing, school kits, hygiene kits, and diapers (2010-2017). We focus on more recent years since they may be more indicative of outcomes in the near future.
+
+A sub-aim of this project is to understand the quality of the data available to UMD.
+
+```{r intro, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Read in packages and data
+library("tidyverse")
+library("lubridate")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1")
+
+proj1 <- read_tsv("../../datasci611/data/project1_2019/UMD_Services_Provided_20190719.tsv")
+proj1_meta <- read_tsv("../../datasci611/data/project1_2019/UMD_Services_Provided_metadata_20190719.tsv")
+
+```
+
+```{r remove_vars, echo=FALSE, results='hide'}
+# Remove extra variables
+proj1 <- proj1 %>%
+  select(-starts_with("field")) %>%
+  select(-matches("clientfilemerge")) %>%
+  select(-one_of("Bus Tickets (Number of)","Notes of Service",
+                 "Food Provided for", "Referrals", "Financial Support",
+                 "Type of Bill Paid", "Payer of Support"))
+```
+
+```{r date, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1 <- proj1 %>%
+  mutate(date_new=mdy(proj1$Date))
+
+# ggplot(data=proj1, aes(x=date_new)) +
+#   geom_histogram() +
+#   theme_minimal() +
+#   xlab("Date of Service") +
+#   ylab("Count") +
+#   ggtitle("Full Range of Available Dates")
+```
+
+```{r date_restrict, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1 <- proj1 %>%
+  filter(between(date_new, as.Date("2010-01-01"), as.Date("2017-12-31"))) %>%
+  arrange(date_new)
+
+# ggplot(data=proj1, aes(x=date_new)) +
+#   geom_histogram() +
+#   theme_minimal() +
+#   xlab("Date of Service") +
+#   ylab("Count") +
+#   ggtitle("Restricted Range of Available Dates (2010-2017)")
+```
+
+```{r handle_large, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Remove extreme outliers
+
+# Food
+sum(is.na(proj1$`Food Pounds`))
+outlier <- boxplot.stats(proj1$`Food Pounds`, coef = 3)$out
+proj1$`Food Pounds` <- 
+  ifelse(proj1$`Food Pounds` %in% outlier, NA, proj1$`Food Pounds`)
+sum(is.na(proj1$`Food Pounds`))
+
+# Clothing
+sum(is.na(proj1$`Clothing Items`))
+outlier <- boxplot.stats(proj1$`Clothing Items`, coef = 3)$out
+proj1$`Clothing Items` <- 
+  ifelse(proj1$`Clothing Items` %in% outlier, NA, proj1$`Clothing Items`)
+sum(is.na(proj1$`Clothing Items`))
+
+# School Kits
+sum(is.na(proj1$`School Kits`))
+outlier <- boxplot.stats(proj1$`School Kits`, coef = 3)$out
+proj1$`School Kits` <- 
+  ifelse(proj1$`School Kits` %in% outlier, NA, proj1$`School Kits`)
+sum(is.na(proj1$`School Kits` ))
+
+# Hygiene Kits
+sum(is.na(proj1$`Hygiene Kits`))
+outlier <- boxplot.stats(proj1$`Hygiene Kits`, coef = 3)$out
+proj1$`Hygiene Kits` <- 
+  ifelse(proj1$`Hygiene Kits` %in% outlier, NA, proj1$`Hygiene Kits`)
+sum(is.na(proj1$`Hygiene Kits`))
+
+# Diapers
+sum(is.na(proj1$Diapers))
+outlier <- boxplot.stats(proj1$Diapers, coef = 3)$out
+proj1$Diapers<- 
+  ifelse(proj1$Diapers %in% outlier, NA, proj1$Diapers)
+sum(is.na(proj1$Diapers))
+
+```
+
+```{r sum_dates, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Summarize data by month and year
+proj1_date <- proj1 %>%
+  mutate(year = year(date_new), month = month(date_new)) %>%
+  group_by(year, month) %>%
+  replace_na(list(`Food Pounds` = 0, 
+             `Clothing Items` = 0, 
+             `School Kits` = 0,
+             `Hygiene Kits` = 0,
+             Diapers = 0)) %>%
+  mutate(food_cumsum = cumsum(`Food Pounds`),
+        cloth_cumsum = cumsum(`Clothing Items`),
+        school_cumsum = cumsum(`School Kits`),
+        hygiene_cumsum = cumsum(`Hygiene Kits`),
+        diaper_cumsum = cumsum(Diapers)) %>%
+  summarise(food_total=max(food_cumsum, na.rm = TRUE),
+            cloth_total=max(cloth_cumsum, na.rm = TRUE),
+            school_total=max(school_cumsum, na.rm = TRUE),
+            hygiene_total=max(hygiene_cumsum, na.rm = TRUE),
+            diaper_total=max(diaper_cumsum, na.rm = TRUE))
+```
+
+```{r plot_lbs_test, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Example graph
+# proj1_date %>%
+#   ggplot(aes(x=year, y=month)) +
+#     geom_raster(aes(fill=food_total)) +
+#     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+#     scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+#     theme_minimal() +
+#     xlab("Year") +
+#     ylab("Calendar Month") +
+#     ggtitle("Total Amount of Food Distributed (lbs)")
+```
+
+# Results
+
+## Food Distribution
+
+The amount of food delivered has increased over the years. There does not seem to be a clear visual signal of seasonal change.
+
+```{r plot_food, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=food_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Food Distributed (lbs)")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs")
+ggsave(filename = "fig1_food_distribution.png")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+## Clothing Distribution
+
+The amount of clothing delivered has changed over time. The peak year was 2014.
+
+```{r plot_cloth, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=cloth_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Clothing Distributed")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs")
+ggsave(filename = "fig2_clothing_distribution.png")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+## School Kit Distribution
+
+The quality of data on school kit distribution may be poor.
+
+```{r plot_school, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=school_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of School Kits Distributed")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs")
+ggsave(filename = "fig3_schoolkit_distribution.png")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+## Hygiene Kit Distribution
+
+We know that hygiene kits are still being distributed, but the data capture on these events are poor. It appears that there have been almost no hygiene kits distributed since 2014, which we know to be false.
+
+```{r plot_hygiene, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=hygiene_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Hygiene Kits Distributed")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs")
+ggsave(filename = "fig4_hygienekit_distribution.png")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+## Diaper Distribution
+
+The quality of data on diaper distribution may be poor. There may be higher diaper distribution in the summer.
+
+```{r plot_dipaer, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+proj1_date %>%
+  ggplot(aes(x=year, y=month)) +
+    geom_raster(aes(fill=diaper_total)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed") +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Calendar Month") +
+    ggtitle("Total Amount of Diapers Distributed")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs")
+ggsave(filename = "fig5_diaper_distribution.png")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results")
+```
+
+# Conclusion
+
+The best data on changes over time in this UMD provided dataset are for food distribution. Food distribution has increased over time and does not seem to have strong seasonal variation. 
