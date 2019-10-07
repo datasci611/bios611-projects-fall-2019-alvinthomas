@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_1/results/figs/")
 ```
 
 # Introduction
@@ -150,6 +151,14 @@ proj1_clients <- proj1 %>%
          year_ended=year(date_last)) %>%
   mutate(time_served=date_last-date_started)
 
+# Total visits per client
+proj1_clients_year <- proj1 %>%
+  mutate(year = year(date_new)) %>%
+  arrange(`Client File Number`, date_new) %>%
+  group_by(`Client File Number`, year) %>%
+  mutate(services=n()) %>%
+  summarise(total=max(services))
+
 # Summarize data by month and year
 proj1_date <- proj1 %>%
   mutate(year = year(date_new), month = month(date_new)) %>%
@@ -179,7 +188,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=food_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -195,14 +204,17 @@ We were interested in the change in services at UMD over time. In order to visua
 We want to have an idea of how many services encounters each neighbor has with UMD. The median was 13 encounters (IQR: 5, 29). 
 
 ```{r plot_clients, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-
 proj1_clients %>%
   ggplot(aes(total)) +
     geom_histogram() +
     theme_minimal() +
     xlab("Number of Service Encounters") +
-    ylab("Number of Clients") +
+    ylab("Number of Neighbors") +
+    geom_vline(xintercept = as.numeric(median(proj1_clients$total)), linetype = "dashed", color = "red") +
+    annotate(geom = "text", x=20, y=5000, label = "Median = 2", color="red") +
     ggtitle("Distribution of Service Encounters")
+
+ggsave(filename = "fig_sup1_service_histo.png")
 
 proj1_clients %>%
   ggplot(aes(x=factor(year_started), y=total)) +
@@ -213,6 +225,8 @@ proj1_clients %>%
   ylab("Number of Service Encounters") +
   ggtitle("Distribution of Service Encounters by Year")
 
+ggsave(filename = "fig_sup2_service_box.png")
+
 proj1_clients %>%
   ggplot(aes(x=factor(year_started), y=as.numeric(time_served))) +
   geom_boxplot() +
@@ -220,6 +234,19 @@ proj1_clients %>%
   xlab("Year of First Service Encounter") +
   ylab("Days between First and Last Encounter") +
   ggtitle("Time since First and Last Encounter")
+
+ggsave(filename = "fig_sup3_time_box.png")
+
+proj1_clients_year %>%
+  ggplot(aes(x=year, y=`Client File Number`)) +
+    geom_tile() +
+    scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Neighbor ID") +
+    ggtitle("Number of Encounters per Year per Neighbor")
+
+ggsave(filename = "fig_sup4_encounter_tile.png")
 ```
 
 ## Food Distribution
@@ -232,7 +259,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=food_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -249,7 +276,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=cloth_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -266,7 +293,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=school_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -282,7 +309,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=hygiene_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -298,7 +325,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=diaper_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +

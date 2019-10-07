@@ -161,7 +161,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=food_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)") +
+    scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -181,7 +181,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=cloth_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Clothing\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -201,7 +201,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=school_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="School Kits\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -220,7 +220,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=hygiene_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Hygiene Kits\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
@@ -239,7 +239,7 @@ proj1_date %>%
   ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=diaper_total)) +
     scale_y_continuous(trans = "reverse", breaks = unique(proj1_date$month)) +
-    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed") +
+    scale_fill_distiller(palette = "YlOrRd", name="Diapers\nDistributed", direction = 1) +
     theme_minimal() +
     xlab("Year") +
     ylab("Calendar Month") +
