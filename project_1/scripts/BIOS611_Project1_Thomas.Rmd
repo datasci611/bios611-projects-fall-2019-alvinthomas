@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<img src="http://www.umdurham.org/assets/images/logo-new1.png" width=30%>
+
 # Introduction
 
 The [Urban Ministries of Durham](http://www.umdurham.org/) (UMD) fights poverty and homeless by offering food, shelter, and a future to neighbors in need. Their mission is accomplished through three primary programs: a [community shelter](http://www.umdurham.org/what-we-do/shelter.html) to house homeless neighbors, a [community cafe](http://www.umdurham.org/what-we-do/cafe.html) that provides hot and cold meals three times a day, and a [food pantry and clothing closet](http://www.umdurham.org/what-we-do/food-pantry.html).
