@@ -22,56 +22,58 @@ proj2 <- proj2 %>%
 
 # filter dates
 
-filter_date <- function(date_range = "2010-01-01 to 2017-12-31") {
+filter_date <- function(data = proj2, date_range = "2010-01-01 to 2017-12-31") {
   first_date = substr(date_range, 1, 10)
   second_date = substr(date_range, 15, 24)
-  proj2 <- proj2 %>%
+  data_new <- data %>%
     filter(between(date_new, as.Date(first_date), as.Date(second_date))) %>%
     arrange(date_new)
+  retrun(data_new)
 }
 
 # Remove extreme outliers
 
-address_outliers <- function(ceof_out=3) {
+address_outliers <- function(data = proj2, ceof_out=3) {
   # Food
-  sum(is.na(proj2$`Food Pounds`))
-  outlier <- boxplot.stats(proj2$`Food Pounds`, coef = ceof_out)$out
+  sum(is.na(data$`Food Pounds`))
+  outlier <- boxplot.stats(data$`Food Pounds`, coef = ceof_out)$out
   proj2$`Food Pounds` <- 
-    ifelse(proj2$`Food Pounds` %in% outlier, NA, proj2$`Food Pounds`)
-  sum(is.na(proj2$`Food Pounds`))
+    ifelse(data$`Food Pounds` %in% outlier, NA, data$`Food Pounds`)
+  sum(is.na(data$`Food Pounds`))
   
   # Clothing
-  sum(is.na(proj2$`Clothing Items`))
-  outlier <- boxplot.stats(proj2$`Clothing Items`, coef = ceof_out)$out
+  sum(is.na(data$`Clothing Items`))
+  outlier <- boxplot.stats(data$`Clothing Items`, coef = ceof_out)$out
   proj2$`Clothing Items` <- 
-    ifelse(proj2$`Clothing Items` %in% outlier, NA, proj2$`Clothing Items`)
-  sum(is.na(proj2$`Clothing Items`))
+    ifelse(data$`Clothing Items` %in% outlier, NA, data$`Clothing Items`)
+  sum(is.na(data$`Clothing Items`))
   
   # School Kits
-  sum(is.na(proj2$`School Kits`))
-  outlier <- boxplot.stats(proj2$`School Kits`, coef = ceof_out)$out
+  sum(is.na(data$`School Kits`))
+  outlier <- boxplot.stats(data$`School Kits`, coef = ceof_out)$out
   proj2$`School Kits` <- 
-    ifelse(proj2$`School Kits` %in% outlier, NA, proj2$`School Kits`)
-  sum(is.na(proj2$`School Kits` ))
+    ifelse(data$`School Kits` %in% outlier, NA, data$`School Kits`)
+  sum(is.na(data$`School Kits` ))
   
   # Hygiene Kits
-  sum(is.na(proj2$`Hygiene Kits`))
-  outlier <- boxplot.stats(proj2$`Hygiene Kits`, coef = ceof_out)$out
+  sum(is.na(data$`Hygiene Kits`))
+  outlier <- boxplot.stats(data$`Hygiene Kits`, coef = ceof_out)$out
   proj2$`Hygiene Kits` <- 
-    ifelse(proj2$`Hygiene Kits` %in% outlier, NA, proj2$`Hygiene Kits`)
-  sum(is.na(proj2$`Hygiene Kits`))
+    ifelse(data$`Hygiene Kits` %in% outlier, NA, data$`Hygiene Kits`)
+  sum(is.na(data$`Hygiene Kits`))
   
   # Diapers
-  sum(is.na(proj2$Diapers))
-  outlier <- boxplot.stats(proj2$Diapers, coef = ceof_out)$out
+  sum(is.na(data$Diapers))
+  outlier <- boxplot.stats(data$Diapers, coef = ceof_out)$out
   proj2$Diapers<- 
-    ifelse(proj2$Diapers %in% outlier, NA, proj2$Diapers)
-  sum(is.na(proj2$Diapers))
+    ifelse(data$Diapers %in% outlier, NA, data$Diapers)
+  sum(is.na(data$Diapers))
 }
 
 # Arrange datasets
-sum_by_client <- function() {
-  # Summarize data by client
+
+# Summarize data by client
+sum_by_clients <- function() {
   proj2_clients <- proj2 %>%
     group_by(`Client File Number`) %>%
     arrange(`Client File Number`) %>%
@@ -82,16 +84,22 @@ sum_by_client <- function() {
     mutate(year_started=year(date_started),
            year_ended=year(date_last)) %>%
     mutate(time_served=date_last-date_started)
-  
-  # Total visits per client
+  return(proj2_clients)
+}
+
+# Total visits per client
+sum_by_client_year <- function() {
   proj2_clients_year <- proj2 %>%
     mutate(year = year(date_new)) %>%
     arrange(`Client File Number`, date_new) %>%
     group_by(`Client File Number`, year) %>%
     mutate(services=n()) %>%
     summarise(total=max(services))
-  
-  # Summarize data by month and year
+  return(proj2_clients_year)
+}
+
+# Summarize data by month and year
+sum_by_date <- function() {
   proj2_date <- proj2 %>%
     mutate(year = year(date_new), month = month(date_new)) %>%
     group_by(year, month) %>%
@@ -110,13 +118,19 @@ sum_by_client <- function() {
               school_total=max(school_cumsum, na.rm = TRUE),
               hygiene_total=max(hygiene_cumsum, na.rm = TRUE),
               diaper_total=max(diaper_cumsum, na.rm = TRUE))
+  return(proj2_date)
 }
 
-make_graph <- function(var_name = "food_total") {
-  proj2_date %>%
+make_graph <- function(data = proj2, var_name = "food_total") {
+  data <- filter_date(data)
+  data <- address_outliers(data)
+  data_clients <- sum_by_clients(data)
+  data_client_year <- sum_by_client_year(data)
+  data_date <- sum_by_date(data)
+  data_date %>%
     ggplot(aes(x=year, y=month)) +
     geom_raster(aes(fill=get(var_name))) +
-    scale_y_continuous(trans = "reverse", breaks = unique(proj2_date$month)) +
+    scale_y_continuous(trans = "reverse", breaks = unique(data_date$month)) +
     scale_fill_distiller(palette = "YlOrRd", name="Food\nDistributed (lbs)", direction = 1) +
     theme_minimal() +
     xlab("Year") +
