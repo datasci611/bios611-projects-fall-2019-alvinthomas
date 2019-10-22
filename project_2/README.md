@@ -18,6 +18,10 @@ Our objective is to create an interactive tool that will help UMD access some of
 
 The tool is meant for the staff of UMD. We will also incorporate information that could be useful for a data scientist that may want to expand or modify our tool.
 
+# Location
+
+The Shiny App can be found at [](https://alvinthomas.shinyapps.io/project_2/).
+
 # Data
 
 ## Source

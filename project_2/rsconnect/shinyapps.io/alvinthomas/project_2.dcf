@@ -5,8 +5,8 @@ account: alvinthomas
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1359114
-bundleId: 2522174
+bundleId: 2523139
 url: https://alvinthomas.shinyapps.io/project_2/
-when: 1571685886.04347
+when: 1571709398.07701
 asMultiple: FALSE
 asStatic: FALSE
