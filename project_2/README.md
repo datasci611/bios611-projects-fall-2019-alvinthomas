@@ -20,7 +20,7 @@ The tool is meant for the staff of UMD. We will also incorporate information tha
 
 # Location
 
-The Shiny App can be found at [](https://alvinthomas.shinyapps.io/project_2/).
+The Shiny App can be found [here](https://alvinthomas.shinyapps.io/project_2/).
 
 # Data
 
