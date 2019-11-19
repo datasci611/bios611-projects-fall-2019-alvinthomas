@@ -1,0 +1,5 @@
+build-image: Dockerfile
+	docker build -t mf2g -f Dockerfile . && touch $@
+
+build-docker-image: build-image
+	cp build-image build-docker-image

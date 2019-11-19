@@ -20,6 +20,12 @@ Our objective is describe and contextualize UMD's emergency shelter services. In
 
 The tool is meant for the staff of UMD. We will also incorporate information that could be useful for a data scientist that may want to expand or modify our tool. Our reproducible tools will be useful to data scientists that would like to build on our work.
 
+# Progress
+
+The focus of this project is to use containers to produce reproducible analyses. A docker image with R and Python will be created. One possible way to easily build this image is to run Python in R through the `reticulate` package. Another is to start with a linux image and build in R and Python while avoiding conflicts.
+
+After building the image, I will perform data wrangling in Python and then use R to create images. Finally, a make file will be available to quickly build the final report document. 
+
 # Data
 
 ## Source

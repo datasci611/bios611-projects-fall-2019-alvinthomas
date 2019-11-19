@@ -1,0 +1,110 @@
+---
+title: "Project 3 Client Report"
+author: "Alvin Thomas"
+date: "11/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_3/results")
+```
+
+# Introduction
+
+![](http://www.umdurham.org/assets/images/logo-new1.png)
+
+The [Urban Ministries of Durham](http://www.umdurham.org/) (UMD) fights poverty and homeless by offering food, shelter, and a future to neighbors in need. Their mission is accomplished through three primary programs: a [community shelter](http://www.umdurham.org/what-we-do/shelter.html) to house homeless neighbors, a [community cafe](http://www.umdurham.org/what-we-do/cafe.html) that provides hot and cold meals three times a day, and a [food pantry and clothing closet](http://www.umdurham.org/what-we-do/food-pantry.html).
+
+During the 2017-2018 [fiscal year](http://umdurham.org/assets/files/UMD_2018AnnualReport_Online.pdf), UMD provided 54,378 nights of shelter to homeless neighbors (792 unique individuals), served 248,028 meals through the community cafe, and provided clothing and groceries to over 500 households per month. Importantly, they ended homelessness for 243 individuals.
+
+In collaboration with [Biostatistics 611](https://biodatascience.github.io/datasci611/), a course titled "Introduction to Data Science" at the University of North Carolina at Chapel Hill, UMD released several datasets of services provided. 
+
+# Study Aim
+
+The purpose of this project is describe the population served by UMD's emergency shelter.
+
+```{r intro, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Read in packages and data
+library("tidyverse")
+library("lubridate")
+setwd("~/Documents/GitHub/bios611-projects-fall-2019-alvinthomas/project_3")
+
+proj3 <- read_csv("data/for_r.csv")
+
+```
+
+## Client Gender
+
+```{r graph1, echo=FALSE, results='hide'}
+proj3 %>% 
+  na.omit(`Client Gender`) %>%
+  ggplot(aes(x=factor(`Client Gender`))) + 
+    geom_bar() +
+    labs(title = "Client Gender") +
+    xlab("") +
+    ylab("Count")
+```
+
+## Client Race
+
+```{r graph2, echo=FALSE, results='hide'}
+proj3 %>% 
+  na.omit(`Client Primary Race`) %>%
+  filter(`Client Primary Race`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Primary Race`))) +
+    geom_bar() + 
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Race") +
+    xlab("") +
+    ylab("Count")
+```
+
+## Client Veteran Status
+
+```{r graph3, echo=FALSE, results='hide'}
+proj3 %>% 
+  na.omit(`Client Veteran Status`) %>%
+  filter(`Client Veteran Status`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Veteran Status`))) +
+    geom_bar() + 
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Veteran Status") +
+    xlab("") +
+    ylab("Count")
+```
+
+## Client Veteran Status
+
+```{r graph4, echo=FALSE, results='hide'}
+proj3 %>% 
+  na.omit(`Client Age at Entry`) %>%
+  filter(`Client Veteran Status`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Veteran Status`), 
+             y=`Client Age at Entry`)) +
+    geom_boxplot() + 
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Age and Veteran Status") +
+    xlab("") +
+    ylab("Count")
+```
+
+## Client Insurance Status
+
+```{r graph5, echo=FALSE, results='hide'}
+proj3 %>% 
+  na.omit(`Covered by Health Insurance(4376)`) %>%
+  filter(`Covered by Health Insurance(4376)`!="Client doesn't know (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Client refused (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Covered by Health Insurance(4376)`))) +
+    geom_bar() + 
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Insurance Status") +
+    xlab("") +
+    ylab("Count")
+```
+
+# Conclusion
+
+We have described basic characterisics of the UMD homeless shelter neighbor. Veterans are more likely to be older.
