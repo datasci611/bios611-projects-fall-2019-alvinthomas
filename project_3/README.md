@@ -52,7 +52,7 @@ Client ID | Numeric  | Yes
 Disability Type (Entry) | String | No
 Disability Start Date (Entry) | Date | No
 Disability End Date (Entry) | Date | No
-Provider (417-provider) | String |
+Provider (417-provider) | String | No
 Recordset ID (417-recordset_id) | Numeric | No
 Date Added (417-date_added) | Numeric | No
 
