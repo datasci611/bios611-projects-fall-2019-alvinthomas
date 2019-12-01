@@ -1,8 +1,3 @@
-# Data for Project 3
-Author: Alvin Thomas, MSPH
-Class: UNC BIOS 611, Fall 2019
-github: @alvinthomas
-
 # Data
 
 ## Source
