@@ -7,7 +7,7 @@ github: @alvinthomas
 
 ## Source
 
-The dataset was provided by Urban Ministries of Durham. The original datasets are TSV files and was originally downloaded from [https://github.com/biodatascience/datasci611/tree/gh-pages/data/project2_2019](here).
+The datasets were provided by Urban Ministries of Durham. The original datasets are TSV files and were originally downloaded from [here](https://github.com/biodatascience/datasci611/tree/gh-pages/data/project2_2019).
 
 ## Filename: CLIENT_191102.tsv
 
