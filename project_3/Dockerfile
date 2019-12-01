@@ -1,7 +1,4 @@
-FROM gcc
+FROM jupyter/datascience-notebook
 MAINTAINER alvin@unc.edu
 
-RUN git clone https://github.com/lindenb/makefile2graph.git &&\
-  cd makefile2graph &&\
-  make
-RUN apt-get update && apt-get install -y graphviz
+RUN Rscript -e "install.packages(c('tidyverse'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
