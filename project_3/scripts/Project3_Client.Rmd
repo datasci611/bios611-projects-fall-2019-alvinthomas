@@ -25,11 +25,11 @@ The purpose of this project is describe the population served by UMD's emergency
 
 ```{r intro, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 # Read in packages and data
-list.of.packages <- c("tidyverse", "stringr", "lubridate", "readxl",
+list.of.packages <- c("dplyr","tidyverse", "stringr", "lubridate", "readxl",
   "RColorBrewer", "treemapify", "patchwork")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(
-  new.packages,dependencies=TRUE, repos='http://cran.rstudio.com/')
+  new.packages, dependencies=TRUE, repos='http://cran.rstudio.com/')
 
 library("tidyverse")
 library("stringr")
