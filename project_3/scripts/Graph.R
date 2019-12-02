@@ -11,7 +11,7 @@ library("RColorBrewer")
 library("treemapify")
 library("patchwork")
 
-proj3 <- read_csv("data/for_r.csv")
+proj3 <- read_csv("../data/for_r.csv")
 
 proj3_race <- proj3 %>%
   drop_na(`Total Nights`) %>%
@@ -28,21 +28,76 @@ getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 p1 <- ggplot(proj3_race,
        aes(area = count,
            fill = `Client Primary Race`,
-           label = `Client Primary Race`)) +
+           label = `Reason for Leaving`,
+           subgroup = `Client Primary Race`)) +
   geom_treemap() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                               "black", fontface = "italic", min.size = 0) +
   geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
   scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
-  theme(legend.position="bottom")
-ggsave(filename = "results/race_count.png")
+  theme(legend.position="hide") +
+  labs(title = "Reasons for Leaving by Race", 
+       subtitle = "Area = Number of Individuals") +
+  guides(fill=guide_legend(nrow=2,byrow=TRUE))
+ggsave(filename = "../results/race_count.png")
 
 p2 <- ggplot(proj3_race,
        aes(area = stay_length,
            fill = `Client Primary Race`,
-           label = `Client Primary Race`)) +
+           label = `Reason for Leaving`,
+           subgroup = `Client Primary Race`)) +
   geom_treemap() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                               "black", fontface = "italic", min.size = 0) +
   geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
-  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount))
-ggsave(filename = "results/race_stay.png")
+  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Reasons for Leaving by Race", 
+       subtitle = "Area = Length of Stay") +
+  guides(fill=guide_legend(nrow=2,byrow=TRUE))
+ggsave(filename = "../results/race_stay.png")
 
 p1 + p2
-ggsave(filename = "results/race_combined.png")
+ggsave(filename = "../results/race_combined.png")
+
+proj3_race2 <- proj3_race %>%
+  filter(!`Reason for Leaving` %in% c("Other"))
+
+p3 <- ggplot(proj3_race2,
+             aes(area = count,
+                 fill = `Client Primary Race`,
+                 label = `Reason for Leaving`,
+                 subgroup = `Client Primary Race`)) +
+  geom_treemap() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                               "black", fontface = "italic", min.size = 0) +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Reasons for Leaving by Race (no Other)", 
+       subtitle = "Area = Number of Individuals")  +
+  guides(fill=guide_legend(nrow=2,byrow=TRUE))
+ggsave(filename = "../results/race_count2.png")
+
+p4 <- ggplot(proj3_race2,
+             aes(area = stay_length,
+                 fill = `Client Primary Race`,
+                 label = `Reason for Leaving`,
+                 subgroup = `Client Primary Race`)) +
+  geom_treemap() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                               "black", fontface = "italic", min.size = 0) +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Reasons for Leaving by Race (no Other)", 
+       subtitle = "Area = Length of Stay") +
+  guides(fill=guide_legend(nrow=2,byrow=TRUE))
+ggsave(filename = "../results/race_stay2.png")
+
+p3 + p4
+ggsave(filename = "../results/race_combined2.png")
