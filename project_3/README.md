@@ -12,19 +12,17 @@ The three primary arms of UMD are the community shelter, community cafe, and foo
 
 # Objective
 
-Our objective is to create an interactive tool that will help UMD access some of their data on food pantry/clothing closet services. The tool will allow for user-driven analytic choices (e.g. how to handle outliers) and present data in a clean, attractive format appropriate for reports.
-
 Our objective is describe and contextualize UMD's emergency shelter services. In order to accomplish this aim, we will use Python and R scripts to clean and visualize the data. In order to establish reproducibility, we will employ Docker and Make to ensure future users can replicate our results.
 
 # Audience
 
-The tool is meant for the staff of UMD. We will also incorporate information that could be useful for a data scientist that may want to expand or modify our tool. Our reproducible tools will be useful to data scientists that would like to build on our work.
+The report is meant for the staff of UMD. The scripts are meant for data scientists that will work with UMD in the future and build on our work.
 
-# Progress
+# How to Run
 
-The focus of this project is to use containers to produce reproducible analyses. A docker image with R and Python will be created. One possible way to easily build this image is to run Python in R through the `reticulate` package. Another is to start with a linux image and build in R and Python while avoiding conflicts.
+This package uses Docker containerization.
 
-After building the image, I will perform data wrangling in Python and then use R to create images. Finally, a make file will be available to quickly build the final report document.
+If Docker is installed on your system, then simply `make project3` using the terminal.
 
 # Data
 
