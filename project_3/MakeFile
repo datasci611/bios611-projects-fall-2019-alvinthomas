@@ -10,8 +10,17 @@ data/for_r.csv: scripts/Analysis.py
 	python scripts/Analysis.py
 
 scripts/Project3_Client.html: data/for_r.csv
-	docker run -d --rm -v "$(pwd):$(pwd)" -w "$(pwd)" jupyter_modified \
+	docker run -d --rm -v "$(shell pwd)":"$(shell pwd)" -w "$(shell pwd)" jupyter_modified \
 	R -e "library(rmarkdown); rmarkdown::render('scripts/Project3_Client.Rmd', 'html_document')"
 
 results/Project3_Client.html: scripts/Project3_Client.html
 	mv scripts/Project3_Client.html results/
+
+.PHONY: project3
+project3:
+	docker build -t jupyter_modified -f Dockerfile .
+	docker run -d --rm -v "$(shell pwd)":"$(shell pwd)" -w "$(shell pwd)" jupyter_modified \
+	&& jupyter nbconvert --to python "scripts/Analysis.ipynb" \
+	&& python scripts/Analysis.py \
+	&& R -e "library(rmarkdown); rmarkdown::render('scripts/Project3_Client.Rmd', 'html_document')" \
+	&& mv scripts/Project3_Client.html results/
