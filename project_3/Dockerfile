@@ -8,3 +8,4 @@ RUN R -e "install.packages('RColorBrewer',dependencies=TRUE, repos='http://cran.
 RUN R -e "install.packages('treemapify',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('patchwork',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('rmarkdown',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('knitr',dependencies=TRUE, repos='http://cran.rstudio.com/')"
