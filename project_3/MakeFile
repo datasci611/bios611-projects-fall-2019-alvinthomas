@@ -1,5 +1,17 @@
-build-image: Dockerfile
-	docker build -t mf2g -f Dockerfile . && touch $@
+jupyter_modified:
+	docker build -t jupyter_modified -f Dockerfile .
 
-build-docker-image: build-image
-	cp build-image build-docker-image
+scripts/Analysis.py: jupyter_modified
+	docker run -d --rm -v "$(shell pwd)":"$(shell pwd)" -w "$(shell pwd)" jupyter_modified \
+	jupyter nbconvert --to python "scripts/Analysis.ipynb"
+
+data/for_r.csv: scripts/Analysis.py
+	docker run -d --rm -v "$(shell pwd)":"$(shell pwd)" -w "$(shell pwd)" jupyter_modified \
+	python scripts/Analysis.py
+
+scripts/Project3_Client.html: data/for_r.csv
+	docker run -d --rm -v "$(pwd):$(pwd)" -w "$(pwd)" jupyter_modified \
+	R -e "library(rmarkdown); rmarkdown::render('scripts/Project3_Client.Rmd', 'html_document')"
+
+results/Project3_Client.html: scripts/Project3_Client.html
+	mv scripts/Project3_Client.html results/

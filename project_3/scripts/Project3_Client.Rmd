@@ -1,0 +1,328 @@
+---
+title: "Project 3 Client Report"
+author: "Alvin Thomas"
+date: "12/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+![](http://www.umdurham.org/assets/images/logo-new1.png)
+
+The [Urban Ministries of Durham](http://www.umdurham.org/) (UMD) fights poverty and homeless by offering food, shelter, and a future to neighbors in need. Their mission is accomplished through three primary programs: a [community shelter](http://www.umdurham.org/what-we-do/shelter.html) to house homeless neighbors, a [community cafe](http://www.umdurham.org/what-we-do/cafe.html) that provides hot and cold meals three times a day, and a [food pantry and clothing closet](http://www.umdurham.org/what-we-do/food-pantry.html).
+
+During the 2017-2018 [fiscal year](http://umdurham.org/assets/files/UMD_2018AnnualReport_Online.pdf), UMD provided 54,378 nights of shelter to homeless neighbors (792 unique individuals), served 248,028 meals through the community cafe, and provided clothing and groceries to over 500 households per month. Importantly, they ended homelessness for 243 individuals.
+
+In collaboration with [Biostatistics 611](https://biodatascience.github.io/datasci611/), a course titled "Introduction to Data Science" at the University of North Carolina at Chapel Hill, UMD released several datasets of services provided.
+
+# Study Aim
+
+The purpose of this project is describe the population served by UMD's emergency shelter. We will also assess the total amount of time spent at the shelter by demographic groups and the reasons for leaving.
+
+```{r intro, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Read in packages and data
+list.of.packages <- c("tidyverse", "stringr", "lubridate", "readxl",
+  "RColorBrewer", "treemapify", "patchwork")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library("tidyverse")
+library("stringr")
+library("lubridate")
+library("readxl")
+library("RColorBrewer")
+library("treemapify")
+library("patchwork")
+
+proj3 <- read_csv("../data/for_r.csv")
+```
+
+## Client Gender
+
+```{r graph1, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Client Gender`) %>%
+  ggplot(aes(x=factor(`Client Gender`))) +
+    geom_bar() +
+    theme_minimal() +
+    labs(title = "Client Gender") +
+    xlab(" ") +
+    ylab("Count")
+```
+
+The most common gender identifier is male. There are some that identify as a gender other than male or female. It is important to recognize these individuals and ensure inclusive langauge around gender to support all neighbors.
+
+```{r graph1b, echo=FALSE, results='hide'}
+
+proj3_gender <- proj3 %>%
+  drop_na(`Total Nights`) %>%
+  drop_na(`Client Gender`) %>%
+  group_by(`Client Gender`) %>%
+  summarise(count = n(), stay_length = sum(`Total Nights`))
+
+colourCount = length(unique(proj3_gender$`Client Gender`))
+getPalette = colorRampPalette(brewer.pal(3, "Set1"))
+
+p1 <- ggplot(proj3_gender,
+       aes(area = count,
+           fill = `Client Gender`,
+           label = `Client Gender`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Gender", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Number of Individuals")
+
+p2 <- ggplot(proj3_gender,
+       aes(area = stay_length,
+           fill = `Client Gender`,
+           label = `Client Gender`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Gender", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Length of Stay")
+
+p1 + p2
+
+```
+
+## Client Race
+
+```{r graph2, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Client Primary Race`) %>%
+  filter(`Client Primary Race`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Primary Race`))) +
+    geom_bar() +
+    theme_minimal() +
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Race") +
+    xlab(" ") +
+    ylab("Count")
+```
+
+The most common primary race (based on distinct HUD categories) was Black or African American. There were also some white and Native American neighbors that utilized the shelter during the study period.
+
+```{r graph2b, echo=FALSE, results='hide'}
+
+proj3_race<- proj3 %>%
+  drop_na(`Total Nights`) %>%
+  drop_na(`Client Primary Race`) %>%
+  filter(!`Client Primary Race` %in% c("Client refused (HUD)",
+                                       "Client doesn't know (HUD)",
+                                       "Data not collected (HUD)")) %>%
+  group_by(`Client Primary Race`) %>%
+  summarise(count = n(), stay_length = sum(`Total Nights`))
+
+colourCount = length(unique(proj3_race$`Client Primary Race`))
+getPalette = colorRampPalette(brewer.pal(5, "Set1"))
+
+p3 <- ggplot(proj3_race,
+       aes(area = count,
+           fill = `Client Primary Race`,
+           label = `Client Primary Race`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Number of Individuals")
+
+p4 <- ggplot(proj3_race,
+       aes(area = stay_length,
+           fill = `Client Primary Race`,
+           label = `Client Primary Race`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Primary Race", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Length of Stay")
+
+p3 + p4
+
+```
+
+## Client Veteran Status
+
+```{r graph3, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Client Veteran Status`) %>%
+  filter(`Client Veteran Status`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Veteran Status`))) +
+    geom_bar() +
+    theme_minimal() +
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Veteran Status") +
+    xlab(" ") +
+    ylab("Count")
+```
+
+```{r graph3b, echo=FALSE, results='hide'}
+
+proj3_vet <- proj3 %>%
+  drop_na(`Total Nights`) %>%
+  drop_na(`Client Veteran Status`) %>%
+  filter(`Client Veteran Status`!="Data not collected (HUD)") %>%
+  group_by(`Client Veteran Status`) %>%
+  summarise(count = n(), stay_length = sum(`Total Nights`))
+
+colourCount = length(unique(proj3_vet$`Client Veteran Status`))
+getPalette = colorRampPalette(brewer.pal(2, "Set1"))
+
+p5 <- ggplot(proj3_vet,
+       aes(area = count,
+           fill = `Client Veteran Status`,
+           label = `Client Veteran Status`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Veteran Status", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Number of Individuals")
+
+p6 <- ggplot(proj3_vet,
+       aes(area = stay_length,
+           fill = `Client Veteran Status`,
+           label = `Client Veteran Status`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Veteran Status", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Length of Stay")
+
+p5 + p6
+
+```
+
+The majority of neighbors in the UMD shelter were not Veterans.
+
+### Client Veteran Status and Age
+
+```{r graph4, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Client Age at Entry`) %>%
+  filter(`Client Veteran Status`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Client Veteran Status`),
+             y=`Client Age at Entry`)) +
+    geom_boxplot() +
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Age and Veteran Status") +
+    xlab(" ") +
+    ylab("Count") +
+    theme_minimal()
+```
+
+Neighbors that were also veterans were slightly older than neighbors who were not veterans.
+
+## Client Insurance Status
+
+```{r graph5, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Covered by Health Insurance(4376)`) %>%
+  filter(`Covered by Health Insurance(4376)`!="Client doesn't know (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Client refused (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Data not collected (HUD)") %>%
+  ggplot(aes(x=factor(`Covered by Health Insurance(4376)`))) +
+    geom_bar() +
+    theme_minimal() +
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Client Insurance Status") +
+    xlab("") +
+    ylab("Count")
+```
+
+```{r graph5b, echo=FALSE, results='hide'}
+
+proj3_insure <- proj3 %>%
+  drop_na(`Total Nights`) %>%
+  drop_na(`Covered by Health Insurance(4376)`) %>%
+  filter(`Covered by Health Insurance(4376)`!="Client doesn't know (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Client refused (HUD)") %>%
+  filter(`Covered by Health Insurance(4376)`!="Data not collected (HUD)") %>%
+  group_by(`Covered by Health Insurance(4376)`) %>%
+  summarise(count = n(), stay_length = sum(`Total Nights`))
+
+colourCount = length(unique(proj3_insure$`Covered by Health Insurance(4376)`))
+getPalette = colorRampPalette(brewer.pal(3, "Set1"))
+
+p7 <- ggplot(proj3_insure,
+       aes(area = count,
+           fill = `Covered by Health Insurance(4376)`,
+           label = `Covered by Health Insurance(4376)`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Insurance Status", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Number of Individuals")
+
+p8 <- ggplot(proj3_insure,
+       aes(area = stay_length,
+           fill = `Covered by Health Insurance(4376)`,
+           label = `Covered by Health Insurance(4376)`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Client Insurance Status", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Length of Stay")
+
+p7 + p8
+
+```
+
+There were a reasonable number of neighbors with insurance, but the majority did not have insurance at the time of entry.
+
+## Reasons for Leaving
+
+```{r graph6, echo=FALSE, results='hide'}
+proj3 %>%
+  na.omit(`Reason for Leaving`) %>%
+  ggplot(aes(x=factor(`Reason for Leaving`))) +
+    geom_bar() +
+    theme_minimal() +
+    theme(axis.text.x=element_text(angle = 90, vjust = .2)) +
+    labs(title = "Reason for Leaving") +
+    xlab("") +
+    ylab("Count")
+```
+
+```{r graph6b, echo=FALSE, results='hide'}
+
+proj3_reason <- proj3 %>%
+  drop_na(`Total Nights`) %>%
+  drop_na(`Reason for Leaving`) %>%
+  group_by(`Reason for Leaving`) %>%
+  summarise(count = n(), stay_length = sum(`Total Nights`))
+
+colourCount = length(unique(proj3_reason$`Reason for Leaving`))
+getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+
+p9 <- ggplot(proj3_reason,
+       aes(area = count,
+           fill = `Reason for Leaving`,
+           label = `Reason for Leaving`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Reason for Leaving", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Number of Individuals")
+
+p10 <- ggplot(proj3_reason,
+       aes(area = stay_length,
+           fill = `Reason for Leaving`,
+           label = `Reason for Leaving`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) +
+  scale_fill_manual(name = "Reason for Leaving", values = getPalette(colourCount)) +
+  theme(legend.position="hide") +
+  labs(title = "Area = Length of Stay")
+
+p9 + p10
+
+```
+
+# Conclusion
+
+We have described basic characterisics of the UMD neighbors utilizing shelter services. Veterans are more likely to be older than non-Veteran neighbors. The reason for leaving the program is strongly related to the length of time at the shelter.
