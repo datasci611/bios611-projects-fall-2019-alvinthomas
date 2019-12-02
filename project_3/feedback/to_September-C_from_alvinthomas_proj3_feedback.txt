@@ -1,0 +1,13 @@
+To September-C:
+
+Thank you for your feedback. I appreciate the time you spent reviewing my work.
+As you note, most of the technical features of my project were implemented, but
+have I made improvements to the use of Docker and Make in my project environment.
+I have also improved the take-aways and interpretation based on other feedback.
+
+Points	Description
+5/7	Feedback was specific – you know exactly what to improve, and what you did well
+6/6	Feedback was “meta” – the feedback went beyond finding typos to helping you with higher-level improvements
+2/2	Feedback was respectful and optimistic – you feel helped and encouraged after reading the feedback
+
+Score: 13/15
