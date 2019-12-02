@@ -24,6 +24,8 @@ This package uses Docker containerization.
 
 If Docker is installed on your system, then simply `make project3` using the terminal.
 
+This approach has been tested on the University of North Carolina [Virtual Computing Lab (VCL)](https://vcl.unc.edu/) environment. If starting without a docker image of `jupyter/datascience-notebook` then it may take a while to run.
+
 # Data
 
 ## Source
